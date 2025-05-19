@@ -1,10 +1,30 @@
+from __future__ import annotations
+
+import asyncio
+from typing import (
+    Any,
+    Callable,
+    Generator,
+    Protocol,
+    TypeVar,
+)
+
 import pytest
 from google.api_core.exceptions import BadRequest, NotFound
+from google.auth.aio.credentials import (
+    AnonymousCredentials as AsyncAnonymousCredentials,
+)
+from google.cloud.aiplatform.initializer import _set_async_rest_credentials
+from typing_extensions import Concatenate, ParamSpec
+from vcr import VCR
 from vertexai.generative_models import (
     Content,
     GenerationConfig,
     GenerativeModel,
     Part,
+)
+from vertexai.preview.generative_models import (
+    GenerativeModel as PreviewGenerativeModel,
 )
 
 from opentelemetry.instrumentation.vertexai import VertexAIInstrumentor
@@ -22,13 +42,15 @@ from opentelemetry.trace import StatusCode
 def test_generate_content(
     span_exporter: InMemorySpanExporter,
     log_exporter: InMemoryLogExporter,
+    generate_content: GenerateContentFixture,
     instrument_with_content: VertexAIInstrumentor,
 ):
     model = GenerativeModel("gemini-1.5-flash-002")
-    model.generate_content(
+    generate_content(
+        model,
         [
             Content(role="user", parts=[Part.from_text("Say this is a test")]),
-        ]
+        ],
     )
 
     # Emits span
@@ -38,26 +60,51 @@ def test_generate_content(
     assert dict(spans[0].attributes) == {
         "gen_ai.operation.name": "chat",
         "gen_ai.request.model": "gemini-1.5-flash-002",
+        "gen_ai.response.finish_reasons": ("stop",),
+        "gen_ai.response.model": "gemini-1.5-flash-002",
         "gen_ai.system": "vertex_ai",
+        "gen_ai.usage.input_tokens": 5,
+        "gen_ai.usage.output_tokens": 19,
         "server.address": "us-central1-aiplatform.googleapis.com",
         "server.port": 443,
     }
 
-    # Emits content event
+    # Emits user and choice events
     logs = log_exporter.get_finished_logs()
-    assert len(logs) == 1
-    log_record = logs[0].log_record
+    assert len(logs) == 2
+    user_log, choice_log = [log_data.log_record for log_data in logs]
+
     span_context = spans[0].get_span_context()
-    assert log_record.trace_id == span_context.trace_id
-    assert log_record.span_id == span_context.span_id
-    assert log_record.trace_flags == span_context.trace_flags
-    assert log_record.attributes == {
+    assert user_log.trace_id == span_context.trace_id
+    assert user_log.span_id == span_context.span_id
+    assert user_log.trace_flags == span_context.trace_flags
+    assert user_log.attributes == {
         "gen_ai.system": "vertex_ai",
         "event.name": "gen_ai.user.message",
     }
-    assert log_record.body == {
+    assert user_log.body == {
         "content": [{"text": "Say this is a test"}],
         "role": "user",
+    }
+
+    assert choice_log.trace_id == span_context.trace_id
+    assert choice_log.span_id == span_context.span_id
+    assert choice_log.trace_flags == span_context.trace_flags
+    assert choice_log.attributes == {
+        "gen_ai.system": "vertex_ai",
+        "event.name": "gen_ai.choice",
+    }
+    assert choice_log.body == {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+            "content": [
+                {
+                    "text": "Okay, I understand.  I'm ready for your test.  Please proceed.\n"
+                }
+            ],
+            "role": "model",
+        },
     }
 
 
@@ -65,13 +112,15 @@ def test_generate_content(
 def test_generate_content_without_events(
     span_exporter: InMemorySpanExporter,
     log_exporter: InMemoryLogExporter,
+    generate_content: GenerateContentFixture,
     instrument_no_content: VertexAIInstrumentor,
 ):
     model = GenerativeModel("gemini-1.5-flash-002")
-    model.generate_content(
+    generate_content(
+        model,
         [
             Content(role="user", parts=[Part.from_text("Say this is a test")]),
-        ]
+        ],
     )
 
     # Emits span
@@ -81,30 +130,46 @@ def test_generate_content_without_events(
     assert dict(spans[0].attributes) == {
         "gen_ai.operation.name": "chat",
         "gen_ai.request.model": "gemini-1.5-flash-002",
+        "gen_ai.response.finish_reasons": ("stop",),
+        "gen_ai.response.model": "gemini-1.5-flash-002",
         "gen_ai.system": "vertex_ai",
+        "gen_ai.usage.input_tokens": 5,
+        "gen_ai.usage.output_tokens": 19,
         "server.address": "us-central1-aiplatform.googleapis.com",
         "server.port": 443,
     }
 
-    # Emits event without body.content
+    # Emits user and choice event without body.content
     logs = log_exporter.get_finished_logs()
-    assert len(logs) == 1
-    log_record = logs[0].log_record
-    assert log_record.attributes == {
+    assert len(logs) == 2
+    user_log, choice_log = [log_data.log_record for log_data in logs]
+    assert user_log.attributes == {
         "gen_ai.system": "vertex_ai",
         "event.name": "gen_ai.user.message",
     }
-    assert log_record.body == {"role": "user"}
+    assert user_log.body == {"role": "user"}
+
+    assert choice_log.attributes == {
+        "gen_ai.system": "vertex_ai",
+        "event.name": "gen_ai.choice",
+    }
+    assert choice_log.body == {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {"role": "model"},
+    }
 
 
 @pytest.mark.vcr
 def test_generate_content_empty_model(
     span_exporter: InMemorySpanExporter,
+    generate_content: GenerateContentFixture,
     instrument_with_content: VertexAIInstrumentor,
 ):
     model = GenerativeModel("")
     try:
-        model.generate_content(
+        generate_content(
+            model,
             [
                 Content(
                     role="user", parts=[Part.from_text("Say this is a test")]
@@ -131,11 +196,13 @@ def test_generate_content_empty_model(
 @pytest.mark.vcr
 def test_generate_content_missing_model(
     span_exporter: InMemorySpanExporter,
+    generate_content: GenerateContentFixture,
     instrument_with_content: VertexAIInstrumentor,
 ):
     model = GenerativeModel("gemini-does-not-exist")
     try:
-        model.generate_content(
+        generate_content(
+            model,
             [
                 Content(
                     role="user", parts=[Part.from_text("Say this is a test")]
@@ -162,12 +229,14 @@ def test_generate_content_missing_model(
 @pytest.mark.vcr
 def test_generate_content_invalid_temperature(
     span_exporter: InMemorySpanExporter,
+    generate_content: GenerateContentFixture,
     instrument_with_content: VertexAIInstrumentor,
 ):
     model = GenerativeModel("gemini-1.5-flash-002")
     try:
         # Temperature out of range causes error
-        model.generate_content(
+        generate_content(
+            model,
             [
                 Content(
                     role="user", parts=[Part.from_text("Say this is a test")]
@@ -195,18 +264,20 @@ def test_generate_content_invalid_temperature(
 @pytest.mark.vcr
 def test_generate_content_invalid_role(
     log_exporter: InMemoryLogExporter,
+    generate_content: GenerateContentFixture,
     instrument_with_content: VertexAIInstrumentor,
 ):
     model = GenerativeModel("gemini-1.5-flash-002")
     try:
         # Fails because role must be "user" or "model"
-        model.generate_content(
+        generate_content(
+            model,
             [
                 Content(
                     role="invalid_role",
                     parts=[Part.from_text("Say this is a test")],
                 )
-            ]
+            ],
         )
     except BadRequest:
         pass
@@ -225,7 +296,11 @@ def test_generate_content_invalid_role(
 
 
 @pytest.mark.vcr()
-def test_generate_content_extra_params(span_exporter, instrument_no_content):
+def test_generate_content_extra_params(
+    span_exporter,
+    instrument_no_content,
+    generate_content: GenerateContentFixture,
+):
     generation_config = GenerationConfig(
         top_k=2,
         top_p=0.95,
@@ -237,7 +312,8 @@ def test_generate_content_extra_params(span_exporter, instrument_no_content):
         seed=12345,
     )
     model = GenerativeModel("gemini-1.5-flash-002")
-    model.generate_content(
+    generate_content(
+        model,
         [
             Content(role="user", parts=[Part.from_text("Say this is a test")]),
         ],
@@ -255,7 +331,11 @@ def test_generate_content_extra_params(span_exporter, instrument_no_content):
         "gen_ai.request.stop_sequences": ("\n\n\n",),
         "gen_ai.request.temperature": 0.20000000298023224,
         "gen_ai.request.top_p": 0.949999988079071,
+        "gen_ai.response.finish_reasons": ("length",),
+        "gen_ai.response.model": "gemini-1.5-flash-002",
         "gen_ai.system": "vertex_ai",
+        "gen_ai.usage.input_tokens": 5,
+        "gen_ai.usage.output_tokens": 5,
         "server.address": "us-central1-aiplatform.googleapis.com",
         "server.port": 443,
     }
@@ -274,14 +354,46 @@ def assert_span_error(span: ReadableSpan) -> None:
 
 
 @pytest.mark.vcr
-def test_generate_content_all_input_events(
+def test_generate_content_all_events(
     log_exporter: InMemoryLogExporter,
+    generate_content: GenerateContentFixture,
     instrument_with_content: VertexAIInstrumentor,
 ):
-    model = GenerativeModel(
-        "gemini-1.5-flash-002",
-        system_instruction=Part.from_text("You are a clever language model"),
+    generate_content_all_input_events(
+        GenerativeModel(
+            "gemini-1.5-flash-002",
+            system_instruction=Part.from_text(
+                "You are a clever language model"
+            ),
+        ),
+        generate_content,
+        log_exporter,
     )
+
+
+@pytest.mark.vcr
+def test_preview_generate_content_all_input_events(
+    log_exporter: InMemoryLogExporter,
+    generate_content: GenerateContentFixture,
+    instrument_with_content: VertexAIInstrumentor,
+):
+    generate_content_all_input_events(
+        PreviewGenerativeModel(
+            "gemini-1.5-flash-002",
+            system_instruction=Part.from_text(
+                "You are a clever language model"
+            ),
+        ),
+        generate_content,
+        log_exporter,
+    )
+
+
+def generate_content_all_input_events(
+    model: GenerativeModel | PreviewGenerativeModel,
+    generate_content: GenerateContentFixture,
+    log_exporter: InMemoryLogExporter,
+):
     model.generate_content(
         [
             Content(
@@ -299,10 +411,10 @@ def test_generate_content_all_input_events(
         ],
     )
 
-    # Emits a system event, 2 users events, and a assistant event
+    # Emits a system event, 2 users events, an assistant event, and the choice (response) event
     logs = log_exporter.get_finished_logs()
-    assert len(logs) == 4
-    system_log, user_log1, assistant_log, user_log2 = [
+    assert len(logs) == 5
+    system_log, user_log1, assistant_log, user_log2, choice_log = [
         log_data.log_record for log_data in logs
     ]
 
@@ -342,3 +454,66 @@ def test_generate_content_all_input_events(
         "content": [{"text": "Address me by name and say this is a test"}],
         "role": "user",
     }
+
+    assert choice_log.attributes == {
+        "gen_ai.system": "vertex_ai",
+        "event.name": "gen_ai.choice",
+    }
+    assert choice_log.body == {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+            "content": [{"text": "OpenTelemetry, this is a test.\n"}],
+            "role": "model",
+        },
+    }
+
+
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
+
+
+def _copy_signature(
+    func_type: Callable[_P, _R],
+) -> Callable[
+    [Callable[..., Any]], Callable[Concatenate[GenerativeModel, _P], _R]
+]:
+    return lambda func: func
+
+
+# Type annotation for fixture to make LSP work properly
+class GenerateContentFixture(Protocol):
+    @_copy_signature(GenerativeModel.generate_content)
+    def __call__(self): ...
+
+
+@pytest.fixture(
+    name="generate_content",
+    params=(
+        pytest.param(False, id="sync"),
+        pytest.param(True, id="async"),
+    ),
+)
+def fixture_generate_content(
+    request: pytest.FixtureRequest,
+    vcr: VCR,
+) -> Generator[GenerateContentFixture, None, None]:
+    """This fixture parameterizes tests that use it to test calling both
+    GenerativeModel.generate_content() and GenerativeModel.generate_content_async().
+    """
+    is_async: bool = request.param
+
+    if is_async:
+        # See
+        # https://github.com/googleapis/python-aiplatform/blob/cb0e5fedbf45cb0531c0b8611fb7fabdd1f57e56/google/cloud/aiplatform/initializer.py#L717-L729
+        _set_async_rest_credentials(credentials=AsyncAnonymousCredentials())
+
+    def wrapper(model: GenerativeModel, *args, **kwargs) -> None:
+        if is_async:
+            return asyncio.run(model.generate_content_async(*args, **kwargs))
+        return model.generate_content(*args, **kwargs)
+
+    with vcr.use_cassette(
+        request.node.originalname, allow_playback_repeats=True
+    ):
+        yield wrapper
