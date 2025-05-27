@@ -9,6 +9,6 @@ langchain-community!=0.3.24
 # OpenTelemetry dependencies
 opentelemetry-sdk~=1.30.0
 opentelemetry-exporter-otlp-proto-grpc~=1.30.0
-opentelemetry-distro~=0.51b0 
+opentelemetry-distro~=0.54b0 
 
 opentelemetry-semantic-conventions-ai~=0.4.9

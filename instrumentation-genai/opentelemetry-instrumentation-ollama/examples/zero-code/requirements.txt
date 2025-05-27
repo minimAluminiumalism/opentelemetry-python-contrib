@@ -5,5 +5,6 @@ ollama>=0.4.8
 # OpenTelemetry SDK 和 OTLP 导出器
 opentelemetry-sdk~=1.30.0
 opentelemetry-exporter-otlp-proto-grpc~=1.30.0
+opentelemetry-semantic-conventions-ai~=0.4.9
 # Distro 自动加载所有可用的 instrumentation
-opentelemetry-distro~=0.51b0 
+opentelemetry-distro~=0.54b0
