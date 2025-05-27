@@ -1,0 +1,40 @@
+interactions:
+- request:
+    body: '{"messages": [{"role": "system", "content": "你是一个有帮助的AI助手。"}, {"role": "user", "content": "给我讲一个关于OpenTelemetry的笑话"}], "model": "gpt-3.5-turbo", "max_tokens": 100, "temperature": 0.7, "stream": false}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '201'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.0.0
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: '{"id": "chatcmpl-test456", "object": "chat.completion", "created": 1703097700, "model": "gpt-3.5-turbo-0613", "choices": [{"index": 0, "message": {"role": "assistant", "content": "好的，给你讲一个关于OpenTelemetry的笑话：\n\n为什么OpenTelemetry开发者从不迷路？\n\n因为他们总是知道自己的trace在哪里！😄"}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 42, "completion_tokens": 45, "total_tokens": 87}}'
+    headers:
+      Content-Length:
+      - '446'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 20 Dec 2023 10:01:40 GMT
+      x-ratelimit-limit-requests:
+      - '3500'
+      x-ratelimit-remaining-requests:
+      - '3498'
+    status:
+      code: 200
+      message: OK
+version: 1 

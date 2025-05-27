@@ -1,0 +1,40 @@
+interactions:
+- request:
+    body: '{"model": "gpt-3.5-turbo-instruct", "prompt": "Tell me a joke about OpenTelemetry", "max_tokens": 100, "temperature": 0.7, "stream": false}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '132'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.0.0
+    method: POST
+    uri: https://api.openai.com/v1/completions
+  response:
+    body:
+      string: '{"id": "cmpl-test123", "object": "text_completion", "created": 1703097600, "model": "gpt-3.5-turbo-instruct", "choices": [{"text": "\n\nWhy did the OpenTelemetry developer break up with their monitoring tool?\n\nBecause it wasn''t giving them enough visibility into their relationship!", "index": 0, "logprobs": null, "finish_reason": "stop"}], "usage": {"prompt_tokens": 8, "completion_tokens": 32, "total_tokens": 40}}'
+    headers:
+      Content-Length:
+      - '389'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 20 Dec 2023 10:00:00 GMT
+      x-ratelimit-limit-requests:
+      - '3500'
+      x-ratelimit-remaining-requests:
+      - '3499'
+    status:
+      code: 200
+      message: OK
+version: 1 

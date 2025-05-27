@@ -1,0 +1,79 @@
+interactions:
+- request:
+    body: '{"model":"gpt-3.5-turbo-instruct","prompt":["Tell me a joke about OpenTelemetry"],"frequency_penalty":0,"logprobs":null,"max_tokens":100,"n":1,"presence_penalty":0,"seed":null,"temperature":0.7,"top_p":1}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '204'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      traceparent:
+      - 00-14ddf5499a5bcc33a8f78d8bb1663232-65782d6370807b7d-01
+      user-agent:
+      - OpenAI/Python 1.82.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.82.0
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.1
+    method: POST
+    uri: https://api.openai.com/v1/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"Incorrect API key provided:
+        sk-7e698***********************53d7. You can find your API key at https://platform.openai.com/account/api-keys.\",\n
+        \       \"type\": \"invalid_request_error\",\n        \"param\": null,\n        \"code\":
+        \"invalid_api_key\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 946298909b9c0991-HKG
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '285'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 27 May 2025 03:58:49 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=fp3V9rPs8LSC13L7u2VuBcrAdbOc8qFO1GASMg0ICq8-1748318329-1.0.1.1-HMC_b9iDXRutzDFZFEg8nlogiJdqOtYnH0AHsEo.A8OLV9bvx7odaXC63CxKPB0EUEV9y7MKBwqJ26rJamniKUZN0curVL30Ztkj1wpq3kU;
+        path=/; expires=Tue, 27-May-25 04:28:49 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=YNe3ThyFR9TqauuGWp.196OH9kuTK76DV9ThD5gasUo-1748318329187-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      vary:
+      - Origin
+      x-request-id:
+      - req_6cb72fdcab592ce303910514e23d2a6e
+    status:
+      code: 401
+      message: Unauthorized
+version: 1

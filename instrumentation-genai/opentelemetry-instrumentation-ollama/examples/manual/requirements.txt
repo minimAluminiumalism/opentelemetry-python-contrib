@@ -1,0 +1,5 @@
+ollama>=0.4.8
+opentelemetry-api>=1.30
+opentelemetry-sdk>=1.30
+# 安装本地 Ollama 插件
+-e ../.. 

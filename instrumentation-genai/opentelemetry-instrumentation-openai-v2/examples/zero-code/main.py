@@ -4,9 +4,12 @@ from openai import OpenAI
 
 
 def main():
-    client = OpenAI()
+    client = OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        base_url=os.getenv("OPENAI_API_BASE"),
+    )
     chat_completion = client.chat.completions.create(
-        model=os.getenv("CHAT_MODEL", "gpt-4o-mini"),
+        model=os.getenv("CHAT_MODEL", "deepseek-chat"),
         messages=[
             {
                 "role": "user",

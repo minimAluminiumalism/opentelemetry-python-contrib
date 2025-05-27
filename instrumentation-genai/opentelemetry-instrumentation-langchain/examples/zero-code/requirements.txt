@@ -1,0 +1,14 @@
+# Install local langchain instrumentation plugin
+# Install local langchain instrumentation plugin
+-e ../..
+# Langchain and OpenAI client
+langchain>=0.0.346
+langchain-core>0.1.0
+langchain-openai
+langchain-community!=0.3.24
+# OpenTelemetry dependencies
+opentelemetry-sdk~=1.30.0
+opentelemetry-exporter-otlp-proto-grpc~=1.30.0
+opentelemetry-distro~=0.51b0 
+
+opentelemetry-semantic-conventions-ai~=0.4.9
