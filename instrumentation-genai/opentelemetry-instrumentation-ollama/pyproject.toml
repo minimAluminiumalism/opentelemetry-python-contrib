@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "opentelemetry-instrumentation-ollama"
+name = "tapm-instrumentation-ollama"
 dynamic = ["version"]
 description = "OpenTelemetry Official Ollama instrumentation"
 readme = "README.rst"

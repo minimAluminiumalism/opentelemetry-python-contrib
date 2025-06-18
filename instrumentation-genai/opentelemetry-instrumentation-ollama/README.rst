@@ -3,6 +3,12 @@ OpenTelemetry Ollama Instrumentation
 
 该包为 Ollama LLM 客户端库提供 OpenTelemetry 插桩支持。
 
+安装
+-----
+.. code-block:: bash
+
+    pip install tapm-instrumentation-ollama
+
 用法
 -----
 .. code-block:: python

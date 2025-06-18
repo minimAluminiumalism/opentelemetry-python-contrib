@@ -8,7 +8,7 @@ OpenTelemetry Langchain Instrumentation
 
 ::
 
-    pip install opentelemetry-instrumentation-langchain
+    pip install tapm-instrumentation-langchain
 
 使用方法
 --------
