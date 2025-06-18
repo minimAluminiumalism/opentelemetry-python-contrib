@@ -16,7 +16,6 @@
   <a href="https://codecov.io/gh/open-telemetry/opentelemetry-python-contrib/branch/main/">
     <img alt="Codecov Status" src="https://img.shields.io/codecov/c/github/open-telemetry/opentelemetry-python-contrib?style=for-the-badge">
   </a>
-<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry.svg?type=shield"/></a>
   <a href="https://github.com/open-telemetry/opentelemetry-python-contrib/blob/main/LICENSE">
     <img alt="license" src="https://img.shields.io/badge/license-Apache_2.0-green.svg?style=for-the-badge">
   </a>
@@ -40,21 +39,20 @@
 
 ---
 
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry?ref=badge_large)
-
 # OpenTelemetry Python Contrib
 
 The Python auto-instrumentation libraries for [OpenTelemetry](https://opentelemetry.io/) (per [OTEP 0001](https://github.com/open-telemetry/oteps/blob/main/text/0001-telemetry-without-manual-instrumentation.md))
 
 ## Index
 
-* [Installation](#installation)
-* [Releasing](#releasing)
-  * [Releasing a package as `1.0` stable](#releasing-a-package-as-10-stable)
-* [Semantic Convention status of instrumentations](#semantic-convention-status-of-instrumentations)
-* [Contributing](#contributing)
-* [Thanks to all the people who already contributed](#thanks-to-all-the-people-who-already-contributed)
+- [OpenTelemetry Python Contrib](#opentelemetry-python-contrib)
+  - [Index](#index)
+  - [Installation](#installation)
+  - [Releasing](#releasing)
+    - [Releasing a package as `1.0` stable](#releasing-a-package-as-10-stable)
+  - [Semantic Convention status of instrumentations](#semantic-convention-status-of-instrumentations)
+  - [Contributing](#contributing)
+    - [Thanks to all the people who already contributed](#thanks-to-all-the-people-who-already-contributed)
 
 ## Installation
 
