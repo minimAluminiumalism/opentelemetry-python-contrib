@@ -16,6 +16,7 @@
   <a href="https://codecov.io/gh/open-telemetry/opentelemetry-python-contrib/branch/main/">
     <img alt="Codecov Status" src="https://img.shields.io/codecov/c/github/open-telemetry/opentelemetry-python-contrib?style=for-the-badge">
   </a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry.svg?type=shield"/></a>
   <a href="https://github.com/open-telemetry/opentelemetry-python-contrib/blob/main/LICENSE">
     <img alt="license" src="https://img.shields.io/badge/license-Apache_2.0-green.svg?style=for-the-badge">
   </a>
@@ -38,6 +39,9 @@
 </p>
 
 ---
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FLLMetry%2Fautollmetry?ref=badge_large)
 
 # OpenTelemetry Python Contrib
 
