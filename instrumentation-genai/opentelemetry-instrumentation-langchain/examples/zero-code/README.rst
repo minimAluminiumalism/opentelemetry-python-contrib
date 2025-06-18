@@ -25,7 +25,7 @@ Run Example
 -----------
 ```bash
 # enable use the agent if virtualenv
-.venv/bin/opentelemetry-instrument python main.py
+.venv/bin/opentelemetry-instrument python app.py
 ```
 
 After running the command, you should see spans printed to the console along with the chat response. 
