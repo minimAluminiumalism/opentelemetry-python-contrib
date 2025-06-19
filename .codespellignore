@@ -1,0 +1,3 @@
+# Ignore spelling errors in test recording files, as they are records of API responses.
+./instrumentation-genai/opentelemetry-instrumentation-ollama/tests/cassettes/
+instrumentation-genai/opentelemetry-instrumentation-ollama/tests/cassettes/

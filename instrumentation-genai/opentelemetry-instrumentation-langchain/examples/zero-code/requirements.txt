@@ -13,6 +13,6 @@ opentelemetry-distro
 
 opentelemetry-semantic-conventions-ai~=0.4.9
 
-# If intergrated with flask, install following dependencies
+# If integrated with flask, install following dependencies
 flask~=3.1.1
 opentelemetry-instrumentation-flask
