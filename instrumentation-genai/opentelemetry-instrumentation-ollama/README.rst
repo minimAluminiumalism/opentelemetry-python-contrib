@@ -1,24 +1,24 @@
 OpenTelemetry Ollama Instrumentation
 ====================================
 
-该包为 Ollama LLM 客户端库提供 OpenTelemetry 插桩支持。
+This package provides OpenTelemetry instrumentation support for Ollama LLM client libraries.
 
-安装
------
+Installation
+------------
 .. code-block:: bash
 
     pip install tapm-instrumentation-ollama
 
-用法
+Usage
 -----
 .. code-block:: python
 
     from opentelemetry.instrumentation.ollama import OllamaInstrumentor
     OllamaInstrumentor().instrument()
 
-测试
------
-使用 pytest 和 VCR 录制网络请求：
+Testing
+-------
+Use pytest and VCR to record network requests:
 
 .. code-block:: bash
 
