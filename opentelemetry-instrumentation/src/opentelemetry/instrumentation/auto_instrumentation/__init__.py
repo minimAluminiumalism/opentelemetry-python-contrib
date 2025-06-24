@@ -52,21 +52,25 @@ def run() -> None:
     )
 
     argument_otel_environment_variable = {}
+    seen_arguments = set()  # 跟踪已添加的参数以避免重复
 
-    for entry_point in entry_points(
-        group="opentelemetry_environment_variables"
-    ):
-        environment_variable_module = entry_point.load()
+    # 加载两个 entry point 组以保持兼容性
+    for group_name in ["opentelemetry_environment_variables", "tapm_environment_variables"]:
+        for entry_point in entry_points(group=group_name):
+            environment_variable_module = entry_point.load()
 
-        for attribute in dir(environment_variable_module):
-            if attribute.startswith("OTEL_"):
-                argument = sub(r"OTEL_(PYTHON_)?", "", attribute).lower()
+            for attribute in dir(environment_variable_module):
+                if attribute.startswith("OTEL_"):
+                    argument = sub(r"OTEL_(PYTHON_)?", "", attribute).lower()
 
-                parser.add_argument(
-                    f"--{argument}",
-                    required=False,
-                )
-                argument_otel_environment_variable[argument] = attribute
+                    # 检查参数是否已经添加过，避免重复
+                    if argument not in seen_arguments:
+                        parser.add_argument(
+                            f"--{argument}",
+                            required=False,
+                        )
+                        argument_otel_environment_variable[argument] = attribute
+                        seen_arguments.add(argument)
 
     parser.add_argument(
         "--version",

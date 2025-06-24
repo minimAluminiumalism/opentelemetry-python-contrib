@@ -105,7 +105,7 @@ def _is_installed(req):
     except PackageNotFoundError:
         return False
 
-    if not req.specifier.filter(dist_version):
+    if dist_version not in req.specifier:
         logger.warning(
             "instrumentation for package %s is available"
             " but version %s is installed. Skipping.",

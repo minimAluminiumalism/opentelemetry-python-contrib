@@ -17,6 +17,18 @@
 
 libraries = [
     {
+        "library": "langchain>=0.0.346",
+        "instrumentation": "tapm-instrumentation-langchain==0.40.7a3",
+    },
+    {
+        "library": "langchain-core>0.1.0",
+        "instrumentation": "tapm-instrumentation-langchain==0.40.7a3",
+    },
+    {
+        "library": "ollama>=0.2.0,<1",
+        "instrumentation": "tapm-instrumentation-ollama==0.40.7a3",
+    },
+    {
         "library": "openai >= 1.26.0",
         "instrumentation": "opentelemetry-instrumentation-openai-v2",
     },
